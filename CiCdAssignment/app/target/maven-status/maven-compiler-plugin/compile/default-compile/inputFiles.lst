@@ -1,0 +1,4 @@
+/app/src/main/java/com/fse/cicd/assignment/MyCiCdAssignment/repository/UserRepository.java
+/app/src/main/java/com/fse/cicd/assignment/MyCiCdAssignment/entity/User.java
+/app/src/main/java/com/fse/cicd/assignment/MyCiCdAssignment/controller/MainController.java
+/app/src/main/java/com/fse/cicd/assignment/MyCiCdAssignment/MyCiCdAssignmentApplication.java
