@@ -1,0 +1,60 @@
+def CONTAINER_NAME="jenkins-pipeline"
+def CONTAINER_TAG="latest"
+def HTTP_PORT="8090"
+def mvn_version = 'M3'
+
+node {
+	def mavenHome
+	def dockerHome
+    stage('Initialize'){
+        dockerHome = tool 'myDocker'
+        mavenHome  = tool 'myMaven'
+        PATH = "C:\\Progran Files\\Git\\usr\\bin;C:\\Progran Files\\Git\\bin;${dockerHome}/bin:${mavenHome}/bin;${env.PATH}"
+		echo "Maven is  ::$mavenHome"
+    }
+
+    stage('Checkout') {
+        checkout scm
+    }
+
+    stage('Build'){       
+		bat "mvn clean install"		
+    }
+
+    stage("Image Prune"){
+        imagePrune(CONTAINER_NAME)
+    }
+
+    stage('Image Build'){
+        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
+    }
+
+    stage('Run App'){
+        runApp()
+    }
+
+}
+
+def imagePrune(containerName){
+    try {
+        sh "docker image prune -f"
+        sh "docker stop $containerName"
+    } catch(error){}
+}
+
+def imageBuild(containerName, tag){
+    sh "docker build -t $containerName:$tag  -t $containerName --pull --no-cache ."
+    echo "Image build complete"
+}
+
+def pushToImage(containerName, tag, dockerUser, dockerPassword){
+    sh "docker login -u $dockerUser -p $dockerPassword"
+    sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
+    sh "docker push $dockerUser/$containerName:$tag"
+    echo "Image push complete"
+}
+
+def runApp(){
+    sh "docker-compose up"
+    echo "Application started on port"
+}
